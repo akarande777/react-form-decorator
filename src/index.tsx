@@ -81,11 +81,7 @@ function useFormDecorator() {
         const initial = options.initial || "";
         inputMap.current = {
           ...inputMap.current,
-          [name]: { ...(options as InputState), input: initial, initial },
-        };
-      } else {
-        inputMap.current = {
-          [name]: { ...(options as InputState) },
+          [name]: { ...options, initial, input: initial },
         };
       }
       return React.cloneElement(inputEl, {
@@ -104,7 +100,15 @@ function useFormDecorator() {
     );
   }, [input]);
 
-  return { formState, setFormState, decorate, isFormValid };
+  return {
+    formState,
+    setFormState: (name: string, state: InputState) => {
+      const newState = mergeState(name, state);
+      setFormState(newState);
+    },
+    decorate,
+    isFormValid,
+  };
 }
 
 export { useFormDecorator };
