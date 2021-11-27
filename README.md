@@ -3,7 +3,9 @@
 > A lightweight react library for creating controlled form component.
 
 [![NPM](https://img.shields.io/npm/v/react-form-decorator.svg)](https://www.npmjs.com/package/react-form-decorator)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Build Status](https://travis-ci.com/akarande777/react-form-decorator.svg?branch=master)](https://travis-ci.com/akarande777/react-form-decorator)
+[![Known Vulnerabilities](https://snyk.io/test/npm/react-form-decorator/badge.svg)](https://snyk.io/test/npm/react-form-decorator)
+[![npm downloads/month](https://img.shields.io/npm/dm/react-form-decorator)](https://www.npmjs.com/package/react-form-decorator)
 
 ## Install
 
@@ -11,7 +13,7 @@
 npm install --save react-form-decorator
 ```
 
-## Usage
+## Examples
 
 ```tsx
 import React from "react";
@@ -110,6 +112,8 @@ const SetPassword = () => {
   );
 };
 ```
+
+> NOTE: This library does not provide styling.
 
 ## License
 
