@@ -1,7 +1,7 @@
-import { ExampleComponent } from '.'
+import { useFormDecorator } from ".";
 
-describe('ExampleComponent', () => {
-  it('is truthy', () => {
-    expect(ExampleComponent).toBeTruthy()
-  })
-})
+describe("ExampleComponent", () => {
+  it("is truthy", () => {
+    expect(useFormDecorator).toBeTruthy();
+  });
+});

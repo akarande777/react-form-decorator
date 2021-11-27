@@ -1,10 +1,16 @@
-import React from 'react'
+import React from "react";
 
-import { ExampleComponent } from 'react-form-decorator'
-import 'react-form-decorator/dist/index.css'
+import "./index.css";
+import GiftCard from "./components/GiftCard";
+import SetPassword from "./components/SetPassword";
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
-}
+  return (
+    <>
+      <GiftCard />
+      <SetPassword />
+    </>
+  );
+};
 
-export default App
+export default App;
