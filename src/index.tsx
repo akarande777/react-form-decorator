@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import { FormState, InputState, Options } from "./types";
 import df from "d-forest";
+import InputGroup from "./components/input-group";
+import "./index.scss";
 
 interface InputMap {
   [key: string]: InputState;
@@ -16,29 +18,26 @@ const FORM_STATE: FormState = {
   input: {},
   initial: {},
   required: {},
-  valid: {},
-  message: {},
+  error: {},
   validate: {},
   format: {},
 };
 
 function useFormDecorator() {
   const [formState, setFormState] = useState(FORM_STATE);
-  const { input, required, validate, format } = formState;
+  const { input, required, error, validate, format } = formState;
   const inputMap: React.MutableRefObject<InputMap | null> = useRef({});
 
   useEffect(() => {
-    if (inputMap.current) {
-      const newState = Object.entries(inputMap.current).reduce(
-        (prev, [name, state]) => mergeState(name, state, prev),
-        formState
-      );
-      inputMap.current = null;
-      setFormState(newState);
-    }
+    const newState = Object.entries(inputMap.current || {}).reduce(
+      (prev, [name, state]) => mergeState(name, state, prev),
+      formState
+    );
+    setFormState(newState);
+    inputMap.current = null;
   }, []);
 
-  const getValue = (name: string, value: string) => {
+  const applyFormat = (name: string, value: string) => {
     if (typeof format[name] === "function") {
       return format[name](value, formState);
     }
@@ -46,18 +45,17 @@ function useFormDecorator() {
   };
 
   const hasValue = (name: string, value: string) => {
-    return getValue(name, value) !== getValue(name, "");
+    return applyFormat(name, value) !== applyFormat(name, "");
   };
 
   const validateInput = (name: string, value: string) => {
     if (required[name] && !hasValue(name, value)) {
-      return { valid: false, message: "This field is required" };
+      return "This field is required";
     }
     if (typeof validate[name] === "function") {
-      const message = validate[name](value, formState);
-      return { valid: !message, message };
+      return validate[name](value, formState);
     }
-    return { valid: true, message: "" };
+    return "";
   };
 
   const mergeState = (name: string, state: InputState, form = formState) => {
@@ -67,38 +65,69 @@ function useFormDecorator() {
   };
 
   const handleChange = (name: string, value: string) => {
-    const newState = mergeState(name, {
-      input: getValue(name, value),
-      ...validateInput(name, getValue(name, value)),
-    });
+    const input = applyFormat(name, value);
+    const error = validateInput(name, input);
+    const newState = mergeState(name, { input, error });
     setFormState(newState);
   };
 
-  const decorate =
-    (inputEl: ReactElement) =>
-    (name: string, options: Options = {}) => {
-      if (inputMap.current) {
-        const initial = options.initial || "";
-        inputMap.current = {
-          ...inputMap.current,
-          [name]: { ...options, initial, input: initial },
-        };
-      }
-      return React.cloneElement(inputEl, {
-        name,
-        value: getValue(name, input[name] || ""),
-        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-          handleChange(name, e.target.value);
-        },
-        ...inputEl.props,
-      });
+  const initialize = (name: string, options: Options) => {
+    const initial = options.initial || "";
+    inputMap.current = {
+      ...inputMap.current,
+      [name]: { ...options, initial, input: initial },
     };
+  };
+
+  const getClassName = (name: string, inputEl: ReactElement) => {
+    const { className, type } = inputEl.props;
+    const errorClass = error[name] ? "is-danger" : "";
+    switch (true) {
+      case inputEl.type === "select":
+        return className;
+      case ["checkbox", "radio"].includes(type):
+        return className;
+      case type === "file":
+        return `file-input ${className}`;
+      default:
+        return `input ${className} ${errorClass}`;
+    }
+  };
+
+  const getInputProps = (name: string, inputEl: ReactElement) => {
+    return {
+      value: applyFormat(name, input[name]),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        handleChange(name, e.target.value);
+      },
+      ...inputEl.props,
+      className: getClassName(name, inputEl),
+      name,
+    };
+  };
+
+  const inputDecorator = (name: string, { label, ...options }: Options) => {
+    if (inputMap.current) initialize(name, options);
+    return (inputEl: ReactElement) => {
+      const props = getInputProps(name, inputEl);
+      return (
+        <div className={"field rfd-" + name}>
+          <InputGroup
+            inputEl={React.cloneElement(inputEl, props)}
+            label={label || ""}
+            hasError={Boolean(error[name])}
+          />
+          {error[name] && <p className="help is-danger">{error[name]}</p>}
+        </div>
+      );
+    };
+  };
 
   const isFormValid = useMemo(() => {
     return Object.entries(input).every(
-      ([name, value]) => validateInput(name, value).valid
+      ([name, value]) => !validateInput(name, value)
     );
-  }, [input]);
+  }, [formState]);
 
   return {
     formState,
@@ -106,7 +135,7 @@ function useFormDecorator() {
       const newState = mergeState(name, state);
       setFormState(newState);
     },
-    decorate,
+    inputDecorator,
     isFormValid,
   };
 }

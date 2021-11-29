@@ -13,23 +13,9 @@ code {
     monospace;
 }
 
-.form,
-.form-input {
+.form {
   display: flex;
   flex-direction: column;
-}
-
-.form {
-  width: 200px;
+  width: 300px;
   padding: 1rem;
-}
-
-.form-input {
-  margin-bottom: 1rem;
-}
-
-.error {
-  font-size: 0.75rem;
-  margin-top: 0.5rem;
-  color: red;
 }
