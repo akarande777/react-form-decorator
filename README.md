@@ -23,11 +23,12 @@ import "react-form-decorator/dist/index.css";
 
 ```tsx
 const GiftCard = () => {
-  const { inputDecorator, formState, isFormValid } = useFormDecorator();
-  const { input } = formState;
+  const { inputDecorator, validateForm } = useFormDecorator();
 
   const handleSubmit = () => {
-    console.log("handleSubmit", input);
+    validateForm().then((values) => {
+      console.log("handleSubmit", values);
+    });
   };
 
   return (
@@ -38,9 +39,9 @@ const GiftCard = () => {
         validate: (value) => {
           let amount = Number(value.slice(1));
           if (isNaN(amount)) {
-            return "Please enter valid amount";
+            return { amount: "Please enter valid amount" };
           }
-          return "";
+          return {};
         },
       })(<input />)}
       {inputDecorator("quatity", { initial: "1" })(
@@ -51,7 +52,7 @@ const GiftCard = () => {
           <option value="4">4</option>
         </select>
       )}
-      <button className="button" onClick={handleSubmit} disabled={!isFormValid}>
+      <button className="button" onClick={handleSubmit}>
         Add Gift Card
       </button>
     </div>
@@ -61,23 +62,24 @@ const GiftCard = () => {
 
 ```tsx
 const SetPassword = () => {
-  const { inputDecorator, formState, isFormValid } = useFormDecorator();
-  const { input } = formState;
+  const { inputDecorator, validateForm } = useFormDecorator();
 
   const handleSubmit = () => {
-    console.log("handleSubmit", input);
+    validateForm().then((values) => {
+      console.log("handleSubmit", values);
+    });
   };
 
   const password = inputDecorator("password", { required: true });
   const confirm = inputDecorator("confirm", {
     required: true,
-    validate: (value, { input }) => {
+    validate: (value, input) => {
       // these functions should be pure
       // avoid use of variables from outer scope
       if (value !== input.password) {
-        return "Passwords do not match";
+        return { confirm: "Passwords do not match" };
       }
-      return "";
+      return {};
     },
   });
 
@@ -85,7 +87,7 @@ const SetPassword = () => {
     <div className="box">
       {password(<input type="password" placeholder="New Password" />)}
       {confirm(<input type="password" placeholder="Confirm Password" />)}
-      <button className="button" onClick={handleSubmit} disabled={!isFormValid}>
+      <button className="button" onClick={handleSubmit}>
         Set Password
       </button>
     </div>

@@ -3,11 +3,12 @@ import React from "react";
 import { useFormDecorator } from "react-form-decorator";
 
 const GiftCard = () => {
-  const { inputDecorator, formState, isFormValid } = useFormDecorator();
-  const { input } = formState;
+  const { inputDecorator, validateForm } = useFormDecorator();
 
   const handleSubmit = () => {
-    console.log("handleSubmit", input);
+    validateForm().then((values) => {
+      console.log("handleSubmit", values);
+    });
   };
 
   return (
@@ -18,9 +19,9 @@ const GiftCard = () => {
         validate: (value) => {
           let amount = Number(value.slice(1));
           if (isNaN(amount)) {
-            return "Please enter valid amount";
+            return { amount: "Please enter valid amount" };
           }
-          return "";
+          return {};
         },
       })(<input />)}
       {inputDecorator("quatity", { initial: "1" })(
@@ -31,7 +32,7 @@ const GiftCard = () => {
           <option value="4">4</option>
         </select>
       )}
-      <button className="button" onClick={handleSubmit} disabled={!isFormValid}>
+      <button className="button" onClick={handleSubmit}>
         Add Gift Card
       </button>
     </div>
