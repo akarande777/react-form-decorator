@@ -19,19 +19,21 @@ const GiftCard = () => {
         validate: (value) => {
           let amount = Number(value.slice(1));
           if (isNaN(amount)) {
-            return { amount: "Please enter valid amount" };
+            return ["danger", "Please enter valid amount"];
           }
-          return {};
+          return [];
         },
-      })(<input />)}
-      {inputDecorator("quatity", { initial: "1" })(
-        <select>
+      })((props) => (
+        <input {...props} />
+      ))}
+      {inputDecorator("quantity", { initial: "1" })((props) => (
+        <select {...props}>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
         </select>
-      )}
+      ))}
       <button className="button" onClick={handleSubmit}>
         Add Gift Card
       </button>

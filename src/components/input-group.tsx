@@ -3,25 +3,30 @@ import React, { ReactElement, Fragment } from "react";
 interface InputProps {
   inputEl: ReactElement;
   label: string;
-  hasError: boolean;
+  status: string;
 }
 
-function InputGroup({ inputEl, label, hasError }: InputProps) {
-  const { type } = inputEl.props;
-  const errorClass = hasError ? "is-danger" : "";
+function InputGroup({ inputEl, label, status }: InputProps) {
+  const statusClass = "is-" + status;
 
-  if (inputEl.type === "select") {
+  if (inputEl.type === "select")
     return (
       <Fragment>
         <label className="label">{label}</label>
         <div className="control">
-          <div className={"select " + errorClass}>{inputEl}</div>
+          <div className={"select " + statusClass}>{inputEl}</div>
         </div>
       </Fragment>
     );
-  }
 
-  switch (type) {
+  const withClassName = (_class: string) => {
+    const { className = "" } = inputEl.props;
+    return React.cloneElement(inputEl, {
+      className: `${_class} ${className}`,
+    });
+  };
+
+  switch (inputEl.props.type) {
     case "checkbox":
       return (
         <div className="control">
@@ -42,11 +47,8 @@ function InputGroup({ inputEl, label, hasError }: InputProps) {
       return (
         <div className="file">
           <label className="file-label">
-            {inputEl}
+            {withClassName("file-input")}
             <span className="file-cta">
-              <span className="file-icon">
-                <i className="fas fa-upload" />
-              </span>
               <span className="file-label">{label}</span>
             </span>
           </label>
@@ -56,7 +58,7 @@ function InputGroup({ inputEl, label, hasError }: InputProps) {
       return (
         <Fragment>
           <label className="label">{label}</label>
-          <div className="control">{inputEl}</div>
+          <div className="control">{withClassName(`input ${statusClass}`)}</div>
         </Fragment>
       );
   }
