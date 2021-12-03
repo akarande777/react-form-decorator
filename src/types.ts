@@ -4,25 +4,30 @@ export interface InputMap<T> {
   [key: string]: T;
 }
 
-export type InputStatus = "succes" | "danger" | "warning";
+export type Validate =
+  | [string, string, InputMap<InputState>]
+  | [string, string]
+  | [];
 
-export type Validate = (
-  value: string
-) => Promise<[InputStatus, string] | []> | [InputStatus, string] | [];
+export type PromiseOr<T> = Promise<T> | T;
 
 export interface FormState {
   input: InputMap<string>;
-  initial: InputMap<string>;
   required: InputMap<boolean>;
-  status: InputMap<InputStatus>;
+  status: InputMap<string>;
   message: InputMap<string>;
-  validate: InputMap<Validate>;
-  format: InputMap<(value: string) => string>;
-  validateRef: string;
 }
 
-export interface InputWrapperProps {
-  name: string;
+export interface InternalState extends FormState {
+  initial: InputMap<string>;
+  required: InputMap<boolean>;
+  validate: InputMap<(value: string) => PromiseOr<Validate>>;
+  format: InputMap<(value: string) => string>;
+  validateRef: string;
+  callback?: () => void;
+}
+
+export interface DecoratorProps {
   inputEl: ReactElement;
   label?: string;
   status?: string;
@@ -30,32 +35,29 @@ export interface InputWrapperProps {
 }
 
 export interface FormOptions {
-  validateTrigger?: (name: string) => "onChange" | "onBlur";
   messageOnEmpty?: (name: string) => string;
-  valueFromEvent?: (event: unknown, name: string) => string;
-  inputWrapper?: (props: InputWrapperProps) => ReactElement;
+  valueFromEvent?: (name: string, event: unknown) => string;
+  customDecorator?: (name: string, props: DecoratorProps) => ReactElement;
 }
 
 export interface Options {
   label?: string;
-  clsname?: string;
-  addon?: ReactElement;
+  addons?: [ReactElement | null, ReactElement | null];
   initial?: string;
   required?: boolean;
-  validate?: Validate;
+  validate?: (value: string) => PromiseOr<Validate>;
   format?: (value: string) => string;
 }
 
 export interface InputState {
   input?: string;
   required?: boolean;
-  status?: InputStatus;
+  status?: string;
   message?: string;
 }
 
 export interface InputProps {
   name: string;
   value: string;
-  onChange: (event: any) => void;
-  onBlur: (event: any) => void;
+  onChange: (event: unknown) => void;
 }

@@ -20,8 +20,9 @@ const SetPassword = () => {
       {inputDecorator("confirm", {
         required: true,
         validate: (value) => {
-          if (value !== input.password)
-            return ["danger", "Passwords do not match"];
+          if (value !== input.password) {
+            return ["error", "Passwords do not match"];
+          }
           return [];
         },
       })((props) => (

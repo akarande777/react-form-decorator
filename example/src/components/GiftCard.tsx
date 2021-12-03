@@ -15,14 +15,18 @@ const GiftCard = () => {
     <div className="box">
       {inputDecorator("amount", {
         required: true,
-        format: (value) => "$" + value.slice(1).trim(),
         validate: (value) => {
-          let amount = Number(value.slice(1));
-          if (isNaN(amount)) {
-            return ["danger", "Please enter valid amount"];
+          if (isNaN(Number(value))) {
+            return ["error", "Please enter valid amount"];
           }
           return [];
         },
+        addons: [
+          <div className="control">
+            <button className="button">$</button>
+          </div>,
+          null,
+        ],
       })((props) => (
         <input {...props} />
       ))}
@@ -31,7 +35,6 @@ const GiftCard = () => {
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
-          <option value="4">4</option>
         </select>
       ))}
       <button className="button" onClick={handleSubmit}>
