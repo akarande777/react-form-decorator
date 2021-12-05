@@ -54,8 +54,12 @@ export interface Options {
   format?: (value: string) => string;
 }
 
-export interface InputState extends Options {
+export interface InputState {
   input?: string;
+  initial?: string;
+  required?: boolean;
+  status?: string;
+  message?: string;
 }
 
 export interface InputProps {
