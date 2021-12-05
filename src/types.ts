@@ -11,6 +11,12 @@ export type Validate =
 
 export type PromiseOr<T> = Promise<T> | T;
 
+export interface ValidState {
+  name: string;
+  action: "validate" | "resolve";
+  value: PromiseOr<Validate>;
+}
+
 export interface FormState {
   input: InputMap<string>;
   required: InputMap<boolean>;
@@ -20,14 +26,11 @@ export interface FormState {
 
 export interface InternalState extends FormState {
   initial: InputMap<string>;
-  required: InputMap<boolean>;
   validate: InputMap<(value: string) => PromiseOr<Validate>>;
   format: InputMap<(value: string) => string>;
-  validateRef: string;
-  callback?: () => void;
 }
 
-export interface DecoratorProps {
+export interface InputDecProps {
   inputEl: ReactElement;
   label?: string;
   status?: string;
@@ -37,7 +40,7 @@ export interface DecoratorProps {
 export interface FormOptions {
   messageOnEmpty?: (name: string) => string;
   valueFromEvent?: (name: string, event: unknown) => string;
-  customDecorator?: (name: string, props: DecoratorProps) => ReactElement;
+  customDecorator?: (name: string, props: InputDecProps) => ReactElement;
 }
 
 export interface Options {

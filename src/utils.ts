@@ -14,11 +14,11 @@ function mergeInputState(
 
 function mergeInputMap(inputMap: InputMap<InputState>, state: FormState) {
   return Object.entries(inputMap).reduce((prev, [name, state]) => {
-    return mergeInputState(name, state, prev);
+    return mergeInputState(name, state || {}, prev);
   }, state);
 }
 
-function areEqual(obj1: any, obj2: any) {
+function areEqual(obj1: Object, obj2: Object) {
   const keys1 = Object.keys(obj1);
   const keys2 = Object.keys(obj2);
   if (keys1.length !== keys2.length) {
@@ -41,4 +41,6 @@ function classByStatus(status: string) {
   return classNames[status] || "";
 }
 
-export { mergeInputState, mergeInputMap, areEqual, classByStatus };
+const isFunction = (value: unknown) => typeof value === "function";
+
+export { mergeInputState, mergeInputMap, areEqual, classByStatus, isFunction };
