@@ -8,6 +8,7 @@ import React, {
 import {
   FormOptions,
   FormState,
+  InputMap,
   InputProps,
   InputState,
   InternalState,
@@ -185,11 +186,11 @@ function useFormDecorator({
   return useMemo(
     () => ({
       formState: { input, required, status, message } as FormState,
-      setInputState: (name: string, state: InputState) => {
+      setInputState: (state: InputMap<InputState>) => {
         setFormState(
           counter.current > 1
-            ? mergeInputState(name, state, formState)
-            : mergeInputState(name, state, stateRef.current)
+            ? mergeInputMap(state, formState)
+            : mergeInputMap(state, stateRef.current)
         );
       },
       inputDecorator,
