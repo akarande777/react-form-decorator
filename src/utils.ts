@@ -1,21 +1,17 @@
 import df from "d-forest";
-import { FormState, InputMap, InputState } from "./types";
+import { FormState, IFormState, InputState } from "./types";
 import { InputStatus } from "./enums";
 
-function mergeInputState(
-  name: string,
-  inputState: InputState,
-  state: FormState
-) {
-  return Object.entries(inputState).reduce((prev, [key, value]) => {
+function mergeInputState(name: string, state: InputState, form: IFormState) {
+  return Object.entries(state).reduce((prev, [key, value]) => {
     return df.updateByPath(prev, [key, name], () => value);
-  }, state);
+  }, form);
 }
 
-function mergeInputMap(inputMap: InputMap<InputState>, state: FormState) {
-  return Object.entries(inputMap).reduce((prev, [name, state]) => {
-    return mergeInputState(name, state || {}, prev);
-  }, state);
+function mergeFormState(state: FormState, form: IFormState) {
+  return Object.entries(state).reduce((prev, [key, state]) => {
+    return { ...prev, [key]: { ...prev[key], ...state } };
+  }, form);
 }
 
 function areEqual(obj1: Object, obj2: Object) {
@@ -41,6 +37,4 @@ function classByStatus(status: string) {
   return classNames[status] || "";
 }
 
-const isFunction = (value: unknown) => typeof value === "function";
-
-export { mergeInputState, mergeInputMap, areEqual, classByStatus, isFunction };
+export { mergeInputState, mergeFormState, areEqual, classByStatus };

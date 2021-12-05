@@ -8,10 +8,8 @@ import React, {
 import {
   FormOptions,
   FormState,
-  InputMap,
+  IFormState,
   InputProps,
-  InputState,
-  InternalState,
   Options,
   PromiseOr,
   Validate,
@@ -21,7 +19,7 @@ import "./index.scss";
 import {
   areEqual,
   classByStatus,
-  mergeInputMap,
+  mergeFormState,
   mergeInputState,
 } from "./utils";
 import { InputStatus } from "./enums";
@@ -44,7 +42,7 @@ function useFormDecorator({
   valueFromEvent = (_, e: any) => e.target.value,
   customDecorator,
 }: FormOptions = {}) {
-  const [formState, setFormState] = useState(FORM_STATE as InternalState);
+  const [formState, setFormState] = useState(FORM_STATE as IFormState);
   const { input, initial, required, status, message } = formState;
   const stateRef = useRef(formState);
   const [validState, setValidState] = useState({} as ValidState);
@@ -71,10 +69,10 @@ function useFormDecorator({
         validator.current(name, "resolve", result);
         break;
       case "resolve":
-        Promise.resolve(value).then(([sts, msg, map]) => {
+        Promise.resolve(value).then(([sts, msg, state]) => {
           const { status, message } = formState;
           setFormState(
-            mergeInputMap(map || {}, {
+            mergeFormState(state || {}, {
               ...formState,
               status: { ...status, [name]: sts || "" },
               message: { ...message, [name]: msg || "" },
@@ -86,7 +84,7 @@ function useFormDecorator({
 
   const applyFormat = (name: string, value: string = "") => {
     const { format } = stateRef.current;
-    if (typeof format[name] === "function") {
+    if (format[name]) {
       return format[name]?.(value) as string;
     }
     return value;
@@ -185,12 +183,12 @@ function useFormDecorator({
 
   return useMemo(
     () => ({
-      formState: { input, required, status, message } as FormState,
-      setInputState: (state: InputMap<InputState>) => {
+      formState: { input, initial, required, status, message },
+      setFormState: (state: FormState) => {
         setFormState(
           counter.current > 1
-            ? mergeInputMap(state, formState)
-            : mergeInputMap(state, stateRef.current)
+            ? mergeFormState(state, formState)
+            : mergeFormState(state, stateRef.current)
         );
       },
       inputDecorator,
