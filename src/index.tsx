@@ -8,18 +8,19 @@ import React, {
 import {
   FormOptions,
   FormState,
-  IFormState,
+  InputMap,
   InputProps,
+  InputState,
+  IValidate,
   Options,
   PromiseOr,
   Validate,
-  ValidState,
 } from "./types";
 import "./index.scss";
 import {
   areEqual,
   classByStatus,
-  mergeFormState,
+  mergeInputMap,
   mergeInputState,
 } from "./utils";
 import { InputStatus } from "./enums";
@@ -42,15 +43,15 @@ function useFormDecorator({
   valueFromEvent = (_, e: any) => e.target.value,
   customDecorator,
 }: FormOptions = {}) {
-  const [formState, setFormState] = useState(FORM_STATE as IFormState);
+  const [formState, setFormState] = useState(FORM_STATE as FormState);
   const { input, initial, required, status, message } = formState;
   const stateRef = useRef(formState);
-  const [validState, setValidState] = useState({} as ValidState);
+  const [validate, setValidate] = useState({} as IValidate);
   const counter = useRef(0);
 
   const validator = useRef(
     debounce((name, action, value) => {
-      setValidState({ name, action, value });
+      setValidate({ name, action, value });
     }, 200)
   );
 
@@ -62,17 +63,17 @@ function useFormDecorator({
   }, [formState]);
 
   useEffect(() => {
-    const { name, action, value } = validState;
+    const { name, action, value } = validate;
     switch (action) {
       case "validate":
         const result = validateInput(name, input[name]);
         validator.current(name, "resolve", result);
         break;
       case "resolve":
-        Promise.resolve(value).then(([sts, msg, state]) => {
+        Promise.resolve(value).then(([sts, msg, map]) => {
           const { status, message } = formState;
           setFormState(
-            mergeFormState(state || {}, {
+            mergeInputMap(map || {}, {
               ...formState,
               status: { ...status, [name]: sts || "" },
               message: { ...message, [name]: msg || "" },
@@ -80,7 +81,7 @@ function useFormDecorator({
           );
         });
     }
-  }, [validState]);
+  }, [validate]);
 
   const applyFormat = (name: string, value: string = "") => {
     const { format } = stateRef.current;
@@ -103,8 +104,11 @@ function useFormDecorator({
   };
 
   const handleChange = (name: string, value: string) => {
-    const input = applyFormat(name, value);
-    setFormState(mergeInputState(name, { input }, formState));
+    const state = {
+      input: applyFormat(name, value),
+      status: InputStatus.validating,
+    };
+    setFormState(mergeInputState(name, state, formState));
     validator.current(name, "validate", []);
   };
 
@@ -183,12 +187,12 @@ function useFormDecorator({
 
   return useMemo(
     () => ({
-      formState: { input, initial, required, status, message },
-      setFormState: (state: FormState) => {
+      formState: { input, required, status, message },
+      setInputState: (state: InputMap<InputState>) => {
         setFormState(
           counter.current > 1
-            ? mergeFormState(state, formState)
-            : mergeFormState(state, stateRef.current)
+            ? mergeInputMap(state, formState)
+            : mergeInputMap(state, stateRef.current)
         );
       },
       inputDecorator,

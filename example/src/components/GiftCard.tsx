@@ -15,13 +15,6 @@ const GiftCard = () => {
     <div className="box">
       {inputDecorator("amount", {
         required: true,
-        format: (value) => value.trim(),
-        validate: (value) => {
-          if (isNaN(Number(value))) {
-            return ["error", "Please enter valid amount"];
-          }
-          return [];
-        },
         addons: [
           <div className="control">
             <button className="button">$</button>
@@ -29,7 +22,7 @@ const GiftCard = () => {
           null,
         ],
       })((props) => (
-        <input {...props} />
+        <input {...props} type="number" />
       ))}
       {inputDecorator("quantity", { initial: "1" })((props) => (
         <select {...props}>

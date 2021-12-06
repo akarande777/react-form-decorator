@@ -1,16 +1,16 @@
 import df from "d-forest";
-import { FormState, IFormState, InputState } from "./types";
+import { FormState, InputMap, InputState } from "./types";
 import { InputStatus } from "./enums";
 
-function mergeInputState(name: string, state: InputState, form: IFormState) {
+function mergeInputState(name: string, state: InputState, form: FormState) {
   return Object.entries(state).reduce((prev, [key, value]) => {
     return df.updateByPath(prev, [key, name], () => value);
   }, form);
 }
 
-function mergeFormState(state: FormState, form: IFormState) {
-  return Object.entries(state).reduce((prev, [key, state]) => {
-    return { ...prev, [key]: { ...prev[key], ...state } };
+function mergeInputMap(map: InputMap<InputState>, form: FormState) {
+  return Object.entries(map).reduce((prev, [name, state]) => {
+    return mergeInputState(name, state || {}, prev);
   }, form);
 }
 
@@ -37,4 +37,4 @@ function classByStatus(status: string) {
   return classNames[status] || "";
 }
 
-export { mergeInputState, mergeFormState, areEqual, classByStatus };
+export { mergeInputState, mergeInputMap, areEqual, classByStatus };

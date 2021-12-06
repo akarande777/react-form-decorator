@@ -4,17 +4,20 @@ export interface InputMap<T> {
   [key: string]: T | undefined;
 }
 
-export type Validate = [string, string, FormState] | [string, string] | [];
+export type Validate =
+  | [string, string, InputMap<InputState>]
+  | [string, string]
+  | [];
 
 export type PromiseOr<T> = Promise<T> | T;
 
-export interface ValidState {
+export interface IValidate {
   name: string;
   action: "validate" | "resolve";
   value: PromiseOr<Validate>;
 }
 
-export interface IFormState {
+export interface FormState {
   input: InputMap<string>;
   initial: InputMap<string>;
   required: InputMap<boolean>;
@@ -22,14 +25,6 @@ export interface IFormState {
   message: InputMap<string>;
   validate: InputMap<(value: string) => PromiseOr<Validate>>;
   format: InputMap<(value: string) => string>;
-}
-
-export interface FormState {
-  input?: InputMap<string>;
-  initial?: InputMap<string>;
-  required?: InputMap<boolean>;
-  status?: InputMap<string>;
-  message?: InputMap<string>;
 }
 
 export interface InputDecProps {
@@ -56,7 +51,6 @@ export interface Options {
 
 export interface InputState {
   input?: string;
-  initial?: string;
   required?: boolean;
   status?: string;
   message?: string;
