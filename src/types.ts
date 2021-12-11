@@ -18,13 +18,13 @@ export interface IValidate {
 }
 
 export interface FormState {
-  input: InputMap<string>;
-  initial: InputMap<string>;
+  input: InputMap<any>;
+  initial: InputMap<any>;
   required: InputMap<boolean>;
   status: InputMap<string>;
   message: InputMap<string>;
-  validate: InputMap<(value: string) => PromiseOr<Validate>>;
-  format: InputMap<(value: string) => string>;
+  validate: InputMap<(value: any) => PromiseOr<Validate>>;
+  format: InputMap<(value: any) => string>;
 }
 
 export interface InputDecProps {
@@ -34,23 +34,15 @@ export interface InputDecProps {
   message?: string;
 }
 
-export interface FormOptions {
-  messageOnEmpty?: (name: string) => string;
-  valueFromEvent?: (name: string, event: unknown) => string;
-  customDecorator?: (name: string, props: InputDecProps) => ReactElement;
-}
-
 export interface Options {
-  label?: string;
-  addons?: [ReactElement | null, ReactElement | null];
-  initial?: string;
+  initial?: any;
   required?: boolean;
-  validate?: (value: string) => PromiseOr<Validate>;
-  format?: (value: string) => string;
+  validate?: (value: any) => PromiseOr<Validate>;
+  format?: (value: any) => string;
 }
 
 export interface InputState {
-  input?: string;
+  input?: any;
   required?: boolean;
   status?: string;
   message?: string;
@@ -58,6 +50,6 @@ export interface InputState {
 
 export interface InputProps {
   name: string;
-  value: string;
+  value: any;
   onChange: (event: unknown) => void;
 }

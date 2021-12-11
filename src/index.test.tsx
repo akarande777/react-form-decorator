@@ -1,7 +1,7 @@
-import { useFormDecorator } from ".";
+import { Form } from ".";
 
 describe("ExampleComponent", () => {
   it("is truthy", () => {
-    expect(useFormDecorator).toBeTruthy();
+    expect(Form).toBeTruthy();
   });
 });

@@ -1,40 +1,43 @@
-import React from "react";
+import React, { useRef } from "react";
 
-import { useFormDecorator } from "react-form-decorator";
+import { Form, FormField } from "react-form-decorator";
 
 const GiftCard = () => {
-  const { inputDecorator, validateForm } = useFormDecorator();
+  const formRef = useRef<any>({});
 
   const handleSubmit = () => {
-    validateForm().then((values) => {
+    formRef.current.validateForm().then((values: any) => {
       console.log("handleSubmit", values);
     });
   };
 
   return (
-    <div className="box">
-      {inputDecorator("amount", {
-        required: true,
-        addons: [
+    <Form ref={formRef}>
+      <FormField
+        name="amount"
+        required={true}
+        addons={[
           <div className="control">
             <button className="button">$</button>
           </div>,
           null,
-        ],
-      })((props) => (
-        <input {...props} type="number" />
-      ))}
-      {inputDecorator("quantity", { initial: "1" })((props) => (
-        <select {...props}>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      ))}
+        ]}
+      >
+        {(props) => <input type="number" min="1" {...props} />}
+      </FormField>
+      <FormField name="quantity" initial="1">
+        {(props) => (
+          <select {...props}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        )}
+      </FormField>
       <button className="button" onClick={handleSubmit}>
         Add Gift Card
       </button>
-    </div>
+    </Form>
   );
 };
 
