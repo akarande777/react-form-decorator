@@ -1,18 +1,20 @@
-import React, { useRef } from "react";
+import React, { FormEvent, useRef } from "react";
 
 import { Form, FormField } from "react-form-decorator";
+import { FormInstance } from "react-form-decorator/dist/types";
 
 const SetPassword = () => {
-  const formRef = useRef<any>({});
+  const formRef = useRef<FormInstance>();
 
-  const handleSubmit = () => {
-    formRef.current.validateForm().then((values: any) => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    formRef.current!.validateForm().then((values) => {
       console.log("handleSubmit", values);
     });
   };
 
   return (
-    <Form ref={formRef}>
+    <Form ref={formRef} onSubmit={handleSubmit}>
       <FormField name="password" required>
         {(props) => (
           <input type="password" placeholder="New Password" {...props} />
@@ -22,7 +24,7 @@ const SetPassword = () => {
         name="confirm"
         required
         validate={(value) => {
-          const { input } = formRef.current.getFormState();
+          const { input } = formRef.current!.formState;
           if (value !== input.password) {
             return ["error", "Passwords do not match"];
           }
@@ -33,7 +35,7 @@ const SetPassword = () => {
           <input type="password" placeholder="Confirm Password" {...props} />
         )}
       </FormField>
-      <button className="button" onClick={handleSubmit}>
+      <button className="button" type="submit">
         Set Password
       </button>
     </Form>

@@ -1,8 +1,8 @@
 import React, {
   FormHTMLAttributes,
   forwardRef,
+  MutableRefObject,
   ReactElement,
-  Ref,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -11,7 +11,9 @@ import React, {
 } from "react";
 import FormContext from "../context";
 import {
+  FormInstance,
   FormState,
+  IFormState,
   InputDecProps,
   InputMap,
   InputState,
@@ -30,10 +32,12 @@ const FORM_STATE = {
   message: {},
   validate: {},
   format: {},
+  trigger: {},
 };
 
 interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
   messageOnEmpty?: (name: string) => string;
+  validateTrigger?: (name: string) => "onChange" | "onBlur" | "onSubmit";
   valueFromEvent?: (name: string, event: unknown) => any;
   inputDecorator?: (name: string, props: InputDecProps) => ReactElement;
 }
@@ -43,13 +47,14 @@ function Form(
     messageOnEmpty = () => "This field is required",
     valueFromEvent = (_, e: any) => e.target.value,
     inputDecorator,
+    validateTrigger = () => "onChange",
     className,
     children,
     ...otherProps
   }: FormProps,
-  ref: Ref<any>
+  formRef: MutableRefObject<FormInstance | undefined>
 ) {
-  const [formState, setFormState] = useState(FORM_STATE as FormState);
+  const [formState, setFormState] = useState(FORM_STATE as IFormState);
   const { input, required, status, message } = formState;
   const stateRef = useRef(formState);
   const counter = useRef(0);
@@ -81,25 +86,32 @@ function Form(
     return validate[name]?.(value) || [];
   };
 
-  const validate = useValidator({ formState, setFormState, validateInput });
+  const validateAsync = useValidator({
+    formState,
+    setFormState,
+    validateInput,
+  });
 
   const handleChange = (name: string, value: string) => {
+    const validate = validateTrigger(name) === "onChange";
     const state = {
       input: applyFormat(name, value),
-      status: InputStatus.validating,
+      status: validate ? InputStatus.validating : status[name],
     };
     setFormState(mergeInputState(name, state, formState));
-    validate(name);
+    if (validate) validateAsync(name);
   };
 
-  const getInputProps = (name: string) => {
-    return {
-      value: applyFormat(name, input[name]),
-      onChange: (event: unknown) => {
-        handleChange(name, valueFromEvent(name, event));
-      },
-    };
-  };
+  const getInputProps = (name: string) => ({
+    name,
+    value: applyFormat(name, input[name]),
+    onChange: (event: unknown) => {
+      handleChange(name, valueFromEvent(name, event));
+    },
+    onBlur: () => {
+      if (validateTrigger(name) === "onBlur") validateAsync(name);
+    },
+  });
 
   const validateForm = () => {
     return Object.keys(input)
@@ -130,9 +142,9 @@ function Form(
   );
 
   useImperativeHandle(
-    ref,
+    formRef,
     () => ({
-      getFormState: () => ({ input, required, status, message }),
+      formState: { input, required, status, message } as FormState,
       setInputState: (state: InputMap<InputState>) => {
         setFormState(
           counter.current > 1

@@ -1,18 +1,20 @@
-import React, { useRef } from "react";
+import React, { FormEvent, useRef } from "react";
 
 import { Form, FormField } from "react-form-decorator";
+import { FormInstance } from "react-form-decorator/dist/types";
 
 const GiftCard = () => {
-  const formRef = useRef<any>({});
+  const formRef = useRef<FormInstance>();
 
-  const handleSubmit = () => {
-    formRef.current.validateForm().then((values: any) => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    formRef.current!.validateForm().then((values) => {
       console.log("handleSubmit", values);
     });
   };
 
   return (
-    <Form ref={formRef}>
+    <Form ref={formRef} onSubmit={handleSubmit}>
       <FormField
         name="amount"
         required={true}
@@ -34,7 +36,7 @@ const GiftCard = () => {
           </select>
         )}
       </FormField>
-      <button className="button" onClick={handleSubmit}>
+      <button className="button" type="submit">
         Add Gift Card
       </button>
     </Form>

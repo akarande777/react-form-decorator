@@ -21,13 +21,12 @@ export default function FormField({
 }: FormFieldProps) {
   const { stateRef, formState, getInputProps, inputDecorator } =
     useContext(FormContext);
-  const { initial = "", format } = options;
+  const { format, initial = "" } = options;
   const input = format ? format(initial) : initial;
   const state = { ...options, initial: input, input };
   stateRef.current = mergeInputState(name, state, stateRef.current);
 
-  const props = { name, ...getInputProps(name) };
-  const inputEl = children(props);
+  const inputEl = children(getInputProps(name));
   const { status, message } = formState;
   if (inputDecorator) {
     return inputDecorator(name, {
@@ -36,7 +35,6 @@ export default function FormField({
       message: message[name],
     });
   }
-
   return (
     <FieldView
       className={`rfd-${name} ${className || ""}`}

@@ -17,7 +17,7 @@ export interface IValidate {
   value: PromiseOr<Validate>;
 }
 
-export interface FormState {
+export interface IFormState {
   input: InputMap<any>;
   initial: InputMap<any>;
   required: InputMap<boolean>;
@@ -29,7 +29,6 @@ export interface FormState {
 
 export interface InputDecProps {
   inputEl: ReactElement;
-  label?: string;
   status?: string;
   message?: string;
 }
@@ -52,4 +51,18 @@ export interface InputProps {
   name: string;
   value: any;
   onChange: (event: unknown) => void;
+  onBlur: () => void;
+}
+
+export interface FormState {
+  input: InputMap<any>;
+  required: InputMap<boolean>;
+  status: InputMap<string>;
+  message: InputMap<string>;
+}
+
+export interface FormInstance {
+  formState: FormState;
+  setInputState: (state: InputMap<InputState>) => void;
+  validateForm: () => Promise<InputMap<any>>;
 }

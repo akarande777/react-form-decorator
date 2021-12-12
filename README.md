@@ -18,78 +18,89 @@ npm install --save react-form-decorator
 ```tsx
 import React from "react";
 import { useFormDecorator } from "react-form-decorator";
+import { FormInstance } from "react-form-decorator/dist/types";
 import "react-form-decorator/dist/index.css";
 ```
 
 ```tsx
 const GiftCard = () => {
-  const { inputDecorator, validateForm } = useFormDecorator();
+  const formRef = useRef<FormInstance>();
 
-  const handleSubmit = () => {
-    validateForm().then((values) => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    formRef.current!.validateForm().then((values) => {
       console.log("handleSubmit", values);
     });
   };
 
   return (
-    <div className="box">
-      {inputDecorator("amount", {
-        required: true,
-        addons: [
+    <Form ref={formRef} onSubmit={handleSubmit}>
+      <FormField
+        name="amount"
+        required={true}
+        addons={[
           <div className="control">
             <button className="button">$</button>
           </div>,
           null,
-        ],
-      })((props) => (
-        <input {...props} type="number" />
-      ))}
-      {inputDecorator("quantity", { initial: "1" })((props) => (
-        <select {...props}>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      ))}
-      <button className="button" onClick={handleSubmit}>
+        ]}
+      >
+        {(props) => <input type="number" min="1" {...props} />}
+      </FormField>
+      <FormField name="quantity" initial="1">
+        {(props) => (
+          <select {...props}>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        )}
+      </FormField>
+      <button className="button" type="submit">
         Add Gift Card
       </button>
-    </div>
+    </Form>
   );
 };
 ```
 
 ```tsx
 const SetPassword = () => {
-  const { inputDecorator, validateForm, formState } = useFormDecorator();
-  const { input } = formState;
+  const formRef = useRef<FormInstance>();
 
-  const handleSubmit = () => {
-    validateForm().then((values) => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    formRef.current!.validateForm().then((values) => {
       console.log("handleSubmit", values);
     });
   };
 
   return (
-    <div className="box">
-      {inputDecorator("password", { required: true })((props) => (
-        <input type="password" placeholder="New Password" {...props} />
-      ))}
-      {inputDecorator("confirm", {
-        required: true,
-        validate: (value) => {
+    <Form ref={formRef} onSubmit={handleSubmit}>
+      <FormField name="password" required>
+        {(props) => (
+          <input type="password" placeholder="New Password" {...props} />
+        )}
+      </FormField>
+      <FormField
+        name="confirm"
+        required
+        validate={(value) => {
+          const { input } = formRef.current!.formState;
           if (value !== input.password) {
             return ["error", "Passwords do not match"];
           }
           return [];
-        },
-      })((props) => (
-        <input type="password" placeholder="Confirm Password" {...props} />
-      ))}
-      <button className="button" onClick={handleSubmit}>
+        }}
+      >
+        {(props) => (
+          <input type="password" placeholder="Confirm Password" {...props} />
+        )}
+      </FormField>
+      <button className="button" type="submit">
         Set Password
       </button>
-    </div>
+    </Form>
   );
 };
 ```
